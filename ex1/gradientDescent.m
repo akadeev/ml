@@ -19,8 +19,10 @@ for iter = 1:num_iters
 
 
 
-
-
+    c = alpha / m;
+    h = X * theta;
+    derivative = (c .* sum((h - y) .* X))';
+    theta = theta - derivative;
 
 
     % ============================================================

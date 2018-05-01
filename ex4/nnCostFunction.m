@@ -61,28 +61,49 @@ Theta2_grad = zeros(size(Theta2));
 %               the regularization separately and then add them to Theta1_grad
 %               and Theta2_grad from Part 2.
 %
+% -------------------------------------------------------------
 
-X = [ones(m, 1) X];
+
+c = 1 / m;
 
 for i = 1:m
+    % --------------------- Cost function feedforward computation ------------------------
+
     x = X(i, :);
     yv = zeros(num_labels, 1);
     yv(y(i)) = 1;
 
-    z2 = x * Theta1';
-    a2 = sigmoid(z2);
-    z3 = [1 a2] * Theta2';
+    a1 = [1 x];
+    z2 = a1 * Theta1';
+    a2 = [1 sigmoid(z2)];
+    z3 = a2 * Theta2';
     a3 = sigmoid(z3);
 
-    c = 1 / m;
     J = J + c * sum((log(a3) * -yv) - (log(1 - a3) * (1 - yv)));
+
+    % ---------------------- Gradient backpropagation computation ------------------------
+
+    d3 = a3 .- yv';
+    d2 = (d3 * Theta2);
+    d2 = d2(2:end) .* sigmoidGradient(z2);
+
+    Theta2_grad = Theta2_grad + d3' * a2;
+    Theta1_grad = Theta1_grad + d2' * a1;
+
 endfor
+
+% --------------------- Cost function feedforward computation ------------------------
 
 t1 = Theta1(:, 2:end) .^ 2;
 t2 = Theta2(:, 2:end) .^ 2;
 J = J + (lambda ./ (2 .* m) .* (sum(t1(:)) + sum(t2(:))));
 
-% -------------------------------------------------------------
+% ---------------------- Gradient backpropagation computation ------------------------
+
+Theta1(:,1) = 0;
+Theta2(:,1) = 0;
+Theta1_grad = Theta1_grad .* c + Theta1 .* c .* lambda;
+Theta2_grad = Theta2_grad .* c + Theta2 .* c .* lambda;
 
 % =========================================================================
 
